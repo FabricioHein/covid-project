@@ -4,9 +4,32 @@
     
 }
 .leaflet-popup-content-wrapper{
-    width: 200px;
-    height: 200px;
+    width: 300px;
+    height: auto;
     text-align: center;
 
 
+}
+.leaflet-popup-content{
+    text-align: center;
+    margin: 5px 5;
+    
+}
+.title-poup{
+    font-family: fantasy;
+    font-size: 20px;
+}
+.content-poup{
+    font-size: small;
+   
+}
+
+.content-poup span{
+    font-family: serif;
+    font-size: 20px;
+
+
+}
+.footer-poup{
+    padding-top: 10px;
 }

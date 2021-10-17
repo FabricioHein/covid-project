@@ -12,28 +12,21 @@ const GeoMap = () => {
     const [config] = useState(configGeo);
     const [country, setCountry] = useState([]);
     const [dataCovid, setDataCovid] = useState([]);
+    const [mapState, setMapState] = useState('')
+
+   
 
     useEffect(() => {
         const map = L.map(mapContainer.current)
             .setView(
                 [config.lat, config.long],
-                config.zoom)
+                config.zoom);     
+               
+            addLayerEsri(map)    
+                         
+       return () => map.remove();
 
-        addLayerEsri(map);
-
-        L.geoJson(country, {
-            onEachFeature: countryOnEachFeatureFunction,
-
-        }).addTo(map);
-
-
-
-
-
-
-        return () => map.remove();
-
-    }, [country, config, dataCovid])
+    }, [country, config])
 
     useEffect(() => {
 
@@ -59,6 +52,7 @@ const GeoMap = () => {
     }, []);
 
 
+
     function addLayerEsri(map) {
         /* Base Layers */
         let esri_image = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -76,6 +70,10 @@ const GeoMap = () => {
         };
 
         L.control.layers(baseLayers).addTo(map);
+        L.geoJson(country, {
+            onEachFeature: countryOnEachFeatureFunction,
+
+        }).addTo(map);
 
     }
 
@@ -86,21 +84,60 @@ const GeoMap = () => {
 
             if (name === element.country.name) {
 
-                const infocovid = dataCovid.find(country => country.country.name == `${name}`);
+                const infocovid = dataCovid.find(country => country.country.name === `${name}`);
 
                 for (infocovid.date in infocovid.dates) {
                     // console.log(`${infocovid} - ${infocovid.dates[infocovid.date]} cases`);
 
-
-
                     layer.bindPopup(`
-                <div>
-                        <h1> ${name} 
+                    <div class='card-body'>
+                       
+                    <div class='title-poup'>
+                    <h1> ${name} 
     
-                        </h1>
-                       Date: ${infocovid.date} Cases: ${infocovid.dates[infocovid.date].cumulative.cases} 
+                    </h1>
+                    </div>
+                    <div  class='content-poup'>
+                       
+                       <ul>  
+                       <span> Date: </span>
+                       
+                       ${infocovid.date
+                        .toLocaleString('en-IN')} 
+                       </ul>
+                       <ul>  
+                       <span> Cases: </span>
+                       
+                       ${infocovid.dates[infocovid.date].cumulative.cases
+                        .toLocaleString('en-IN')}
+                        </ul>
+                        <ul> 
+                        <ul>  
+                        <span> Recoveries: </span>
+                        
+                        ${infocovid.dates[infocovid.date].cumulative.recoveries
+                            .toLocaleString('en-IN')
+                            }
+                          </ul>
+                    
+                        <span> Deaths: </span>
+                        
+                        ${infocovid.dates[infocovid.date].cumulative.deaths
+                            .toLocaleString('en-IN')
+
+                            }
+                          </ul>
+                   
+
+                       
     
-                                            
+                     </div>  
+                     
+                     <div class='footer-poup'>
+                     source: 
+                     https://coviddata.github.io/coviddata
+
+                     </div>
     
                 </div>
                 
@@ -113,17 +150,11 @@ const GeoMap = () => {
             }
 
 
-
-
-
         });
+        
 
 
     }
-
-
-
-
 
     return (
         <div>
