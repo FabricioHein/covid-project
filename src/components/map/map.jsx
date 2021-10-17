@@ -12,7 +12,6 @@ const GeoMap = () => {
     const [config] = useState(configGeo);
     const [country, setCountry] = useState([]);
     const [dataCovid, setDataCovid] = useState([]);
-    const [mapState, setMapState] = useState('')
 
    
 
