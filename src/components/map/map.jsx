@@ -1,52 +1,64 @@
 import '../map/map.css'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import configGeo from '../../config/map';
+import axios from 'axios';
 
+const GeoMap = () => {
 
-const configGeo = {
-    lat: 51.505,
-    long: -0.09,
-    zoom: 2
-}
-
-const GeoMap = (props) => {
+    const mapContainer = useRef();
 
     const [config] = useState(configGeo);
-    const [dataCovid, setDataCovid] = useState('')
+    const [country, setCountry] = useState([]);
+    const [dataCovid, setDataCovid] = useState([]);
 
-    useEffect(
-        () => {
-            setMapa()
-
-        }, [config]
-    )
-
-    // useEffect(
-
-    //     () => {
-    //         fetch("https://coviddata.github.io/coviddata/v1/countries/stats.json")
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 const country = data;
-    //                 setDataCovid(country)
-
-    //             })
-    //     }, [dataCovid]
-
-    // )
-
-    function setMapa() {
-        const map = L.map('map')
+    useEffect(() => {
+        const map = L.map(mapContainer.current)
             .setView(
-                [configGeo.lat, configGeo.long],
-                configGeo.zoom)
+                [config.lat, config.long],
+                config.zoom)
 
         addLayerEsri(map);
-        geodata(map)
+
+        L.geoJson(country, {
+            onEachFeature: countryOnEachFeatureFunction,
+
+        }).addTo(map);
 
 
-    }
+
+
+
+
+        return () => map.remove();
+
+    }, [country, config, dataCovid])
+
+    useEffect(() => {
+
+        const axioCountry = async () => {
+
+            const response = await axios('https://datahub.io/core/geo-countries/r/countries.geojson');
+            setCountry(response.data);
+
+        };
+
+        const axioDataCovid = async () => {
+
+            const response = await axios('https://coviddata.github.io/coviddata/v1/countries/stats.json');
+            setDataCovid(response.data);
+
+        };
+
+        axioCountry();
+
+        axioDataCovid();
+
+
+    }, []);
+
+
     function addLayerEsri(map) {
         /* Base Layers */
         let esri_image = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -65,40 +77,58 @@ const GeoMap = (props) => {
 
         L.control.layers(baseLayers).addTo(map);
 
+    }
+
+    function countryOnEachFeatureFunction(feature, layer) {
+
+        let name = feature.properties.ADMIN
+        dataCovid.forEach(element => {
+
+            if (name === element.country.name) {
+
+                const infocovid = dataCovid.find(country => country.country.name == `${name}`);
+
+                for (infocovid.date in infocovid.dates) {
+                    // console.log(`${infocovid} - ${infocovid.dates[infocovid.date]} cases`);
+
+
+
+                    layer.bindPopup(`
+                <div>
+                        <h1> ${name} 
+    
+                        </h1>
+                       Date: ${infocovid.date} Cases: ${infocovid.dates[infocovid.date].cumulative.cases} 
+    
+                                            
+    
+                </div>
+                
+                
+                `);
+
+                }
+
+
+            }
+
+
+
+
+
+        });
+
 
     }
-    function geodata(map) {
-
-        function onEachFeature(feature, layer) {
-            // does this feature have a property named popupContent?
-            if (feature.properties && feature.properties.popupContent) {
-                layer.bindPopup(feature.properties.popupContent);
-            }
-        }
-
-        var geojsonFeature = {
-            "type": "Feature",
-            "properties": {
-                "name": "Coors Field",
-                "amenity": "Baseball Stadium",
-                "popupContent": "This is where the Rockies play!"
-            },
-            "geometry": {
-                "type": "Point",
-                "coordinates": [-104.99404, 39.75621]
-            }
-        };
-
-        L.geoJSON(geojsonFeature, {
-            onEachFeature: onEachFeature
-        }).addTo(map);
 
 
-    }
+
+
 
     return (
         <div>
-            <div id={props.div || 'map'} className="map">
+
+            <div ref={el => mapContainer.current = el} className="map">
 
             </div>
         </div>
