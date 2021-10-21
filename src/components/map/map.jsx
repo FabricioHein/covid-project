@@ -157,8 +157,9 @@ const GeoMap = () => {
 
     return (
         <div>
-
+            
             <div ref={el => mapContainer.current = el} className="map">
+
 
             </div>
         </div>

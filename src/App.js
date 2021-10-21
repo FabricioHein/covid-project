@@ -1,18 +1,19 @@
 import '../src/App.css'
 import '../src/index.css'
-
-import GeoMap from '../src/components/map/map'
-import Navbar from './components/navbar/navbar';
-import Footer from './components/footer/footer';
+import { BrowserRouter } from 'react-router-dom'
+import Routes from './routes/Routes';
+import AuthContext from './contexts/auth'
 
 function App() {
   return (
+    <AuthContext.Provider value={{signed: false}} >
+    <BrowserRouter>
     <div className='app'>
-      <Navbar />
-      <GeoMap />
-      <Footer />
-
+      <Routes />
+      
     </div>
+    </BrowserRouter>
+    </AuthContext.Provider>
 
   );
 }
