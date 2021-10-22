@@ -8,7 +8,13 @@ const Home = ()=>{
 
       <>
       <Navbar />
-      <GeoMap />
+        <div className='container'>
+          <h1>Covid Information</h1>
+        </div>
+        <main>
+        <GeoMap />
+
+        </main>
       <Footer /> 
       </>
       
